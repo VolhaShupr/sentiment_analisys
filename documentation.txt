@@ -1,0 +1,53 @@
+This code describes the implementation of sentiment analysis of tweets using Python (v. 3.6) and the natural language toolkit (NLTK). The purpose of the implementation is to be able to automatically classify a tweet as a positive, neutral or negative sentiment.
+
+Used libraries are contained in file requirements.txt and can be installed by pip.
+
+The application has 3 modules.
+
+The first one 'preproc' is used for preprocessing text. It has the following functions:
+del_noise(sent, labels=False, hashtags=True, urls=True, retweets=True, non_letters=True, proper=True, lower=True, repeated=True)
+input data are sentence, boolean arguments which can modify the input data using regular expressions by removing the following:
+- labels (right answer to sentence ('positive', 'neutral' or 'negative'));
+- hashtags (e.g. #cheerpracticeonhalloween, #Celtics, #7ThingsAboutMyBestFriend);
+- urls (e.g. http://bit.ly/ViPkZU, http://goo.gl/GF4Om, http://exm.nr/YauE8Y);
+- retweets (e.g. @dogorman10, @Lon_Genius, @realDonaldTrump);
+- non_letters (digits, punctuation (except apostrophe));
+- proper names (e.g. Jay Cutler, Jason, US, Philippines);
+- repeated letters (e.g. happyyyyy -> happy, nooooooo -> no, gooddddd -> good);
+and convert string to lower case.
+Output data is sentence.
+
+filtering(sent, prepos=True, lemm=True, stemm=False)
+input data are sentence and boolean arguments to remove prepositions, make lemmatization and/or stemming
+This function:
+- tokenize sentence;
+- replace negative words ("n't", "any", "arent", "cannot" etc.) to "not";
+- tagging words and remove all except nouns, verbs, adjectives, adverbs with length > 2 characters and prepositions;
+- remove stopwords;
+- remove prepositions;
+- lemmatize words with WordNetLemmatizer;
+- stemming words with PorterStemmer.
+Output sentence.
+
+Module 'dict' read text files with dictionaries line by line and create a dictionary with words as keys and their sentiment orientation as values. It allows to choose a dictionary from a number of available ones and fetch it to a specific kind.
+
+Module 'features' has function feature_extractor(f_train, f_new, K, k, method, feature_set, num_word, num_bg) that count:
+- frequency distant all unigrams / bigrams / trigrams in train text; 
+- frequency distant n the most popular unigrams | bigrams | trigrams;  
+- frequency distant n the most popular unigrams | bigrams | trigrams using mean sentiment orientation of word 
+considering negation handling.
+Also used cross-validation:
+1. take n labeled data
+2. produce 10 equal sized sets 
+Each set is divided into two groups: 90% labeled data are used for training and 10% labeled data are used for testing.
+3. train a classifier on 90% and apply that on the 10% testing data for set 1.
+4. do the same thing for set 2 to 10 and produce 9 more classifiers
+5. average the performance of the 10 classifiers produced from 10 equal sized (90% training and 10% testing) sets
+Provided 2 steps method:
+first step: classify neutral (subjective) vs. positive and negative tweets 
+second step: classify tweets into positive vs. negative
+Input data are file with train sentences, file with test sentences, amount of folds of cross-validation, method (1 or 2 step), feature set (contains type of n-gram, negation, amount of 'best' words).
+Output data is dicrionary of features.
+
+In module 'classification' function 'train_save' trains classificators such as 'NaiveBayes', 'Maximum entropy', 'MultiNaiveBayes', 'BernoulliNaiveBayes', 'Logictic Regression', 'SGD', 'SVC', 'LinearSVC', 'RandomForest'based on features.
+The output is the file with defined by classificator labels for every sentence.
